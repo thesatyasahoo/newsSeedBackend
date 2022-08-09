@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-let Users = mongoose.model('Users', {
+let User = mongoose.model('users', {
     firstName: { type: String },
     lastName: { type: String },
     username: { type: String },
@@ -9,4 +9,4 @@ let Users = mongoose.model('Users', {
     file: {type: String},
 });
 
-module.exports = Users;
+module.exports = User;

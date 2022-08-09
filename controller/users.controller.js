@@ -7,13 +7,11 @@ let User = require("../modals/user.model");
 const saltRounds = 10;
 const multipart = require("connect-multiparty");
 const path = require("path");
-const { pathToFileURL } = require("url");
 const multipartMiddleware = multipart({
   uploadDir: "./uploads",
 });
 
 router.post("/create", (req, res) => {
-  // console.log(req.body);
   let user = User.find(
     {
       email: req.body.email,
@@ -32,7 +30,7 @@ router.post("/create", (req, res) => {
             username: req.body.username,
             email: req.body.email,
             password: hashPassword,
-            file: ""
+            file: "",
           });
           newUser.save();
           let payload = {
@@ -44,15 +42,13 @@ router.post("/create", (req, res) => {
             status: 200,
           };
           let token = jwt.sign(payload, "shhhhh");
-          // console.log(token);
           let resultValue = {
             message: token,
           };
-          res.status(200).send(resultValue);
+          return res.status(200).send(resultValue);
         }
       } else {
-        // console.log(err);
-        res.status(404).send(err);
+        return res.status(404).send(err);
       }
     }
   );
@@ -94,38 +90,47 @@ router.post("/login", (req, res) => {
   );
 });
 
-router.get("", (req, res) => {
-  User.find((error, result) => {
-    if (!error) {
-      res.status(200).send(result);
+router.get("", async (req, res) => {
+  try {
+    let users = await User.find();
+    if (users && users.length > 0) {
+      return res.status(200).send(users);
     } else {
-      res.status(404).send(error);
+      return res.status(404).send({
+        message: "Something Got error!",
+      });
     }
-  });
+  } catch (error) {
+    return res.status(404).send({
+      message: "Something Got error!",
+    });
+  }
 });
 
 router.get("/download/dp/:id", async (req, res) => {
-  let user = await User.findOne({_id: req.params.id})
-  
-  console.log(user.email)
-  if(user) {
-    let file = path.join(__dirname, "../uploads/" + user.file);
-    fs.exists(file, exists => {
-      if (exists) {
+  try {
+    let user = await User.findOne({ _id: req.params.id });
+    if (user) {
+      let file = await path.join(__dirname, "../uploads/" + user.file);
+      fs.exists(file, async (exists) => {
+        if (exists) {
           const { size } = fs.statSync(file);
 
           res.writeHead(200, {
-              'Content-Type': 'image/png',
-              'Content-Length': size,
-              'Content-Disposition': `attachment; filename='${user.file}`
+            "Content-Type": "image/png",
+            "Content-Length": size,
+            "Content-Disposition": `attachment; filename='${user.file}`,
           });
 
           fs.createReadStream(file).pipe(res);
-
-      }
-      else res.status(400).send('Error: Image does not exists');
-  });
-    // return res.sendFile(file);
+        } else {
+          return res.status(400).send({ message:"Error: Image does not exists", status: 400});
+        }
+      });
+      // return res.sendFile(file);
+    }
+  } catch (error) {
+    return res.status(400).send({ message:"Something got Error", status: 400});
   }
 });
 
@@ -172,7 +177,7 @@ router.put("/update/:id", (req, res) => {
               username: req.body.username,
               email: req.body.email,
               password: hashPassword,
-              file: req.body.file
+              file: req.body.file,
             },
           },
           (error, result) => {
@@ -204,7 +209,6 @@ router.put("/update/:id", (req, res) => {
 });
 
 router.delete("/remove/:id", async (req, res) => {
-  console.log(req.params.id);
   let user = await User.findOne({
     _id: req.params.id,
   });
@@ -216,7 +220,6 @@ router.delete("/remove/:id", async (req, res) => {
       },
       (err, data) => {
         if (!err) {
-          console.log(res, "res");
           if (data.deletedCount === 1) {
             res.send({
               status: 200,
@@ -224,7 +227,6 @@ router.delete("/remove/:id", async (req, res) => {
             });
           }
         } else {
-          console.log(err, "err");
           res.send("Please contact your adminstrator");
         }
       }
@@ -238,17 +240,14 @@ router.delete("/remove/:id", async (req, res) => {
 });
 
 router.post("/forgot-Password", (req, res) => {
-  console.log(req.body.email);
   return sendEmailForGotPassword("Forgot password", req.body.email)
     .then((result) => {
-      console.log(result);
       res.send({
         message: "Mail sent successfully",
         status: 200,
       });
     })
     .catch((error) => {
-      console.log(error);
       res.send({
         message: "Error in mail sent, please check logs",
         status: 404,
@@ -264,7 +263,6 @@ router.put("/update-password", (req, res) => {
     (err, data) => {
       if (!err) {
         if (bcrypt.compareSync(req.body.password, data.password) !== true) {
-          console.log(data, req.body);
           let salt = bcrypt.genSaltSync(saltRounds);
           let hashPassword = bcrypt.hashSync(req.body.password, salt);
           let newData = {
@@ -280,7 +278,6 @@ router.put("/update-password", (req, res) => {
             },
             (error, result) => {
               if (!error) {
-                // console.log(result);
                 if (result.nModified === 1) {
                   res.send(`Password Updated Successfully`);
                   sendEmailUpdatePassword("Updated Password", req.body.email);
@@ -289,7 +286,6 @@ router.put("/update-password", (req, res) => {
                 }
               } else {
                 res.send(`Already have account`);
-                // console.log(error);
               }
             }
           );
@@ -306,25 +302,24 @@ router.put("/update-password", (req, res) => {
 router.post("/api/upload", multipartMiddleware, async (req, res) => {
   await User.updateOne(
     {
-      email: req.headers.authorization
+      email: req.headers.authorization,
     },
     {
       $set: {
-        file: req.files.uploads[0].path.replace("uploads\\", "")
+        file: req.files.uploads[0].path.replace("uploads\\", ""),
       },
     },
     (error, result) => {
       if (!error) {
-        // console.log(result);
         return res.json({
           message: "File uploaded succesfully.",
-          path: req.files.uploads[0].path.replace("uploads\\", "")
+          path: req.files.uploads[0].path.replace("uploads\\", ""),
         });
       } else {
         return res.send(`Already have account`);
-        // console.log(error);
       }
-    });
+    }
+  );
 });
 
 module.exports = router;

@@ -7,13 +7,12 @@ let newsController = require("./controller/news.controller");
 let app = express();
 
 app.use(bodyParser.json());
+app.use(cors({ origin: true }));
+const port = process.env.PORT || 3000;
 
 app.get("", (req, res) => {
-  res.send(`Welcome to test server.`);
+  return res.send("Welcome to test server.");
 });
-
-app.use(cors({ origin: true }));
-let port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server listen at port no : ${port}`);

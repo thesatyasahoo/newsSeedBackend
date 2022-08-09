@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-let News = mongoose.model("News", {
+let News = mongoose.model("news", {
   isAdded: { type: Boolean },
   user: {type: String},
   author: {type: String},
