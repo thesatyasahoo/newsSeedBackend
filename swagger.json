@@ -1,0 +1,242 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Node JS Project",
+      "description": "Node JS Backend V0.1",
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "host": "nodejsapiv1.herokuapp.com",
+    "basePath": "",
+    "tags": [
+      {
+        "name": "Users",
+        "description": "API for users in the system"
+      }
+    ],
+    "schemes": [
+      "https"
+    ],
+    "consumes": [
+      "application/json"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "securityDefinitions": {
+      "Bearer": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "paths": {
+      "/user/create": {
+        "post": {
+          "tags": [
+            "Users"
+          ],
+          "description": "Create new user in system",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "User that we want to create",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "New user is created",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      },
+      "/user/login": {
+        "post": {
+          "tags": [
+            "Users"
+          ],
+          "description": "Loging in user in system",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "User that we want to Login",
+              "schema": {
+                "$ref": "#/definitions/loginUser"
+              }
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "New user is created",
+              "schema": {
+                "$ref": "#/definitions/loginUser"
+              }
+            }
+          }
+        }
+      },
+      "/user/{id}": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Email of user that we want to find",
+            "type": "string"
+          }
+        ],
+        "get": {
+          "security": [{"Bearer": []}],
+          "tags": [
+            "Users"
+          ],
+          "responses": {
+            "200": {
+              "description": "User found",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      },
+      "/user": {
+        "get": {
+          "security": [{"Bearer": []}],
+          "tags": [
+            "Users"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          },
+          "produces": [
+            "application/json"
+          ]
+        }
+      },
+      "/user/update/{id}": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Email of admin that we want to find",
+            "type": "string"
+          }
+        ],
+        "put": {
+          "security": [{"Bearer": []}],
+          "tags": [
+            "Users"
+          ],
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "User with new values of properties",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User is updated",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      }
+      ,
+      "/user/remove/{id}": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Email of admin that we want to find",
+            "type": "string"
+          }
+        ],
+        "delete": {
+          "security": [{"Bearer": []}],
+          "tags": [
+            "Users"
+          ],
+          "responses": {
+            "200": {
+              "description": "User is Deleted",
+              "schema": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "user": {
+        "required": [
+          "firstName",
+          "lastName",
+          "username",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName":{
+            "type": "string"
+          },
+          "username":{
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "loginUser": {
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
