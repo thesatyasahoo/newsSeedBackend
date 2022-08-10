@@ -110,7 +110,7 @@ router.get("", async (req, res) => {
 router.get("/download/dp/:id", async (req, res) => {
   try {
     let user = await User.findOne({ _id: req.params.id });
-    if (user) {
+    if (user.file !== "") {
       let file = await path.join(__dirname, "../uploads/" + user.file);
       fs.exists(file, async (exists) => {
         if (exists) {
