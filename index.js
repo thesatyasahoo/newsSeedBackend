@@ -8,6 +8,8 @@ let app = express();
 
 app.use(bodyParser.json());
 app.use(cors({ origin: true }));
+app.use(express.static(__dirname + '/uploads'));
+
 const port = process.env.PORT || 3000;
 
 app.get("", (req, res) => {
