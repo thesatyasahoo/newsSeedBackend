@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 let User = require("../modals/user.model");
 let News = require("../modals/news.model");
+const fetch = require("node-fetch");
 const saltRounds = 10;
 
 router.post("/create", async (req, res) => {
@@ -69,6 +70,16 @@ router.get("", async (req, res) => {
       return res.status(404).send(error);
     }
   });
+});
+
+router.get("/webApi", async (req, res) => {
+  try {
+    let fetchApi = await fetch('https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=a5813d56377844fa9514e3ad80fee1fa');
+    const data = await fetchApi.json();
+    return res.status(200).send(data)
+  } catch (error) {
+    return res.status(404).send(error);
+  }
 });
 
 router.delete("/remove/:id", async (req, res) => {
